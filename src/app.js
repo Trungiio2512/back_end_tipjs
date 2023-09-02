@@ -16,11 +16,7 @@ require("./dbs/init.mongoDb");
 
 // checkOverLoad();
 // init routes
-app.get("/", (req, res) => {
-  return res.status(200).json({
-    message: "Success",
-  });
-});
+app.use("/", require("./routes"));
 
 // handleling errors
 

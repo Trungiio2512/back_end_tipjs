@@ -19,7 +19,7 @@ class Database {
       mongoose.set("debug", true);
       mongoose.set("debug", { color: true });
     }
-    console.log(connectionString);
+    // console.log(connectionString);
     mongoose
       .connect(connectionString)
       .then(() => countConnect())

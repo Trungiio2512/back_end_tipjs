@@ -2,7 +2,7 @@
 
 const mongoose = require("mongoose"); // Erase if already required
 
-const DOCUMENT_NAME = "Shop";
+const DOCUMENT_NAME = "shop";
 const COLLECTION_NAME = "shops";
 // Declare the Schema of the Mongo model
 var shopSchema = new mongoose.Schema(
@@ -27,11 +27,6 @@ var shopSchema = new mongoose.Schema(
       enum: ["active", "inactive"],
       default: "inactive",
     },
-    mobile: {
-      type: String,
-      required: true,
-      unique: true,
-    },
     verify: {
       type: mongoose.Schema.Types.Boolean,
       default: false,
@@ -42,6 +37,7 @@ var shopSchema = new mongoose.Schema(
     },
   },
   {
+    collection: COLLECTION_NAME,
     timestamps: true,
   }
 );

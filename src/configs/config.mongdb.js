@@ -19,7 +19,7 @@ const dev = {
   db: {
     host: process.env.DEV_DB_HOST || "127.0.0.1",
     port: process.env.DEV_DB_PORT || 27017,
-    name: process.env.DEV_DB_NAME || "shopDev",
+    name: process.env.DEV_DB_NAME || "shopTipjs",
   },
 };
 const proD = {
@@ -35,7 +35,7 @@ const proD = {
 
 const config = { dev, proD };
 const env = process.env.NODE_ENV || "dev";
-console.log(config[env]);
-console.log(env);
+// console.log(config[env]);
+// console.log(env);
 
 module.exports = config[env];

@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const KeyTokenService = require("./keyToken_service");
 const { createTokenPair } = require("../auth/authUtils");
+const { getInfoData } = require("../utils");
 
 const roleShop = {
   SHOP: "0000",
@@ -31,7 +32,17 @@ class AccessService {
 
       if (newShop) {
         //created privatekey and public key
-        const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", { modulusLength: 4096 });
+        const { privateKey, publicKey } = crypto.generateKeyPairSync("rsa", {
+          modulusLength: 4096,
+          publicKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
+          privateKeyEncoding: {
+            type: "pkcs1",
+            format: "pem",
+          },
+        });
 
         const publicKeyString = await KeyTokenService.createKeyToken({
           userId: newShop._id,
@@ -45,12 +56,14 @@ class AccessService {
           };
         }
 
-        const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey);
+        const publicKeyObject = crypto.createPublicKey(publicKeyString);
+
+        const tokens = await createTokenPair({ userId: newShop._id, email }, publicKeyObject, privateKey);
         console.log("create token success: ", tokens);
 
         return {
           code: "201",
-          metadata: { shop: newShop, tokens },
+          metadata: { shop: getInfoData({ fields: ["name", "email", "_id"], object: newShop }), tokens },
         };
       }
 

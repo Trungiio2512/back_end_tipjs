@@ -20,10 +20,6 @@ var keyTokenSchema = new Schema(
       type: Array,
       default: [],
     },
-    password: {
-      type: String,
-      required: true,
-    },
   },
   {
     collection: COLLECTION_NAME,

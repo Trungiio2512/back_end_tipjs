@@ -7,7 +7,7 @@ class KeyTokenService {
     try {
       const publicKeyString = publicKey.toString();
       const tokens = await keyTokenModel.create({ user: userId, publicKey: publicKeyString });
-      return tokens ? publicKeyString : null;
+      return tokens ? tokens.publicKey : null;
     } catch (error) {
       return error;
     }

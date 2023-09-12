@@ -10,16 +10,16 @@ const { getInfoData } = require("../utils");
 
 const roleShop = {
   SHOP: "0000",
-  WRITER: "0001",
-  EDITER: "0002",
-  ADMIN: "0003",
+  WRITER: "1111",
+  EDITER: "2222",
+  ADMIN: "3333",
 };
 
 class AccessService {
   static signUp = async ({ name, email, password }) => {
     try {
       //step 1: check email has exist
-      const holderShop = await shopModel.findOne({ email });
+      const holderShop = await shopModel.findOne({ email }).lean();
 
       if (holderShop) {
         return {
@@ -65,7 +65,7 @@ class AccessService {
         // const tokens = await createTokenPair({ userId: newShop._id, email }, publicKeyObject, privateKey);
 
         const tokens = await createTokenPair({ userId: newShop._id, email }, publicKey, privateKey);
-        console.log("create token success: ", tokens);
+        // console.log("create token success: ", tokens);
 
         return {
           code: "201",

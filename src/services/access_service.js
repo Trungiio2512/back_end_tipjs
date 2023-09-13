@@ -7,7 +7,8 @@ const crypto = require("node:crypto");
 const KeyTokenService = require("./keyToken_service");
 const { createTokenPair } = require("../auth/authUtils");
 const { getInfoData } = require("../utils");
-const { BadRequestError, ConflictRequestError } = require("../core/error.response");
+const { BadRequestError, ConflictRequestError, AuthFailureError } = require("../core/error.response");
+const { findByEmail } = require("./shop_service");
 
 const roleShop = {
   SHOP: "0000",
@@ -17,6 +18,42 @@ const roleShop = {
 };
 
 class AccessService {
+  static login = async ({ email, password, refreshToken = null }) => {
+    /* 
+    1 - check email in dbs
+    2 - match password
+    3 - create AT vs RT and save
+    4 - generate tokens
+    5 - get data return login */
+    console.log(email);
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) {
+      throw new BadRequestError(`Could not found shop`);
+    }
+
+    const match = bcrypt.compare(password, foundShop?.password);
+    if (!match) {
+      throw new AuthFailureError("Authentication error");
+    }
+
+    const { _id: userId } = foundShop;
+    const publicKey = crypto.randomBytes(64).toString("hex");
+    const privateKey = crypto.randomBytes(64).toString("hex");
+    const tokens = await createTokenPair({ userId, email }, publicKey, privateKey);
+
+    await KeyTokenService.createKeyToken({
+      refreshToken: tokens?.refreshToken,
+      privateKey,
+      publicKey,
+      userId,
+    });
+
+    return {
+      shop: getInfoData({ fields: ["name", "email", "_id"], object: foundShop }),
+      tokens,
+    };
+  };
+
   static signUp = async ({ name, email, password }) => {
     // try {
     //step 1: check email has exist
@@ -70,15 +107,12 @@ class AccessService {
       // console.log("create token success: ", tokens);
 
       return {
-        code: "201",
-        metadata: { shop: getInfoData({ fields: ["name", "email", "_id"], object: newShop }), tokens },
+        shop: getInfoData({ fields: ["name", "email", "_id"], object: newShop }),
+        tokens,
       };
     }
 
-    return {
-      code: "200",
-      metadata: null,
-    };
+    return null;
     // } catch (error) {
     //   return {
     //     code: "xxx",

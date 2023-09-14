@@ -22,6 +22,12 @@ class AccessController {
       metadata: await AccessService.signUp(req.body),
     }).send(res);
   }
+
+  async handleRefreshToken(req, res, next) {
+    new SuccessResponse({
+      metadata: await AccessService.handleRefreshToken(req.body?.refreshToken),
+    }).send(res);
+  }
 }
 
 module.exports = new AccessController();

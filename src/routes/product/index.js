@@ -8,13 +8,14 @@ const { authentication, authenticationV2 } = require("../../auth/authUtils");
 const router = express.Router();
 
 router.get("/search/:keySearch", asyncHandler(productController.getListSearchProduct));
+router.get("/:productId", asyncHandler(productController.findProduct));
 router.get("", asyncHandler(productController.findAllProduct));
-router.get("/:product_id", asyncHandler(productController.findProduct));
 
 //signup
 //authentication
 router.use(authenticationV2);
 //
+router.patch("/:productId", asyncHandler(productController.updateProduct));
 router.post("", asyncHandler(productController.createNewProduct));
 router.post("/publish/:id", asyncHandler(productController.publishProductByShop));
 router.post("/unpublish/:id", asyncHandler(productController.unPublishProductByShop));

@@ -18,7 +18,7 @@ const searchProductByUser = async ({ keySearch }) => {
   const results = await product
     .find(
       {
-        isDraft: true,
+        isPublished: true,
         $text: { $search: regexSearch },
       },
       { score: { $meta: "textScore" } }
@@ -72,7 +72,17 @@ const findProduct = async ({ product_id, unSelect }) => {
 };
 
 const queryProduct = async ({ query, limit, skip }) => {
-  return await product.find(query).populate("product_shop", "name email _id").sort({ update: -1 }).skip(skip).lean();
+  return await product
+    .find(query)
+    .populate("product_shop", "name email _id")
+    .sort({ update: -1 })
+    .limit(limit)
+    .skip(skip)
+    .lean();
+};
+
+const updateProductById = async ({ productId, payload, model, isNew = true }) => {
+  return await model.findByIdAndUpdate(productId, payload, { new: isNew });
 };
 
 module.exports = {
@@ -83,4 +93,5 @@ module.exports = {
   searchProductByUser,
   findAllProduct,
   findProduct,
+  updateProductById,
 };

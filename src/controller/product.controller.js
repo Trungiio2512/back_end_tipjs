@@ -15,7 +15,16 @@ class ProductController {
       }),
     }).send(res);
   }
-
+  //Update product
+  async updateProduct(req, res) {
+    new SuccessResponse({
+      message: "UnPublish product successfully",
+      metadata: await ProductServicev2.updateProduct(req.body.product_type, req.params.productId, {
+        ...req.body,
+        product_shop: req.user.userId,
+      }),
+    }).send(res);
+  }
   async publishProductByShop(req, res) {
     new SuccessResponse({
       message: "Publish product successfully",
@@ -35,6 +44,7 @@ class ProductController {
       }),
     }).send(res);
   }
+
   /**
    * @desc Get all draft products
    * @param {Number} limit
@@ -64,7 +74,6 @@ class ProductController {
   }
 
   async getListSearchProduct(req, res, next) {
-    // console.log(req.body);
     new SuccessResponse({
       message: "Get list getListSearchProduct success",
       metadata: await ProductServicev2.searchProduct({
@@ -85,7 +94,7 @@ class ProductController {
     // console.log(req.body);
     new SuccessResponse({
       message: "Get list findProduct success",
-      metadata: await ProductServicev2.findProduct({ product_id: req.params.product_id }),
+      metadata: await ProductServicev2.findProduct({ productId: req.params.productId }),
     }).send(res);
   }
 }

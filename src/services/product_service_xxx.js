@@ -10,15 +10,17 @@ const {
   searchProductByUser,
   findAllProduct,
   findProduct,
+  updateProductById,
 } = require("../model/repository/product.repo");
+const { removeUndefinedObject, updateNestedObjectParse } = require("../utils");
 
 //define factory patten to create product
 
 class FactoryProduct {
   static productResgistry = {};
 
-  static registerProductType = (type, classRef) => {
-    FactoryProduct.productResgistry[type] = classRef;
+  static registerProductType = (type, model) => {
+    FactoryProduct.productResgistry[type] = model;
   };
 
   static async createProduct(type, payload) {
@@ -46,7 +48,7 @@ class FactoryProduct {
     // }
   }
 
-  static async updateProduct(type, payload) {
+  static async updateProduct(type, productId, payload) {
     /* 
         type: 'Clothing'
         payload
@@ -56,7 +58,7 @@ class FactoryProduct {
     if (!productClass) {
       throw new BadRequestError("Invalid product type: " + type);
     }
-    return new productClass(payload).createProduct();
+    return new productClass(payload).updateProduct(productId);
   }
 
   //Put
@@ -102,8 +104,8 @@ class FactoryProduct {
     });
   }
 
-  static async findProduct({ product_id }) {
-    return await findProduct({ product_id, unSelect: ["__v"] });
+  static async findProduct({ productId }) {
+    return await findProduct({ productId, unSelect: ["__v"] });
   }
 }
 
@@ -134,6 +136,10 @@ class Product {
   async createProduct(product_id) {
     return await product.create({ ...this, _id: product_id });
   }
+
+  async updateProduct(productId, payload) {
+    return await updateProductById({ productId, payload, model: product });
+  }
 }
 
 //define class diffrent product type by clothing
@@ -147,6 +153,27 @@ class Clothing extends Product {
     if (!newProduct) throw new BadRequestError("Create new product error");
 
     return newProduct;
+  }
+
+  async updateProduct(productId) {
+    /* 1. remove attr has undefined, null
+        2. check update o cho nao
+    */
+    const objParams = removeUndefinedObject(this);
+    if (objParams.product_attributes) {
+      //update child
+      const attrNew = removeUndefinedObject(objParams.product_attributes);
+      const newClothinglothing = await updateProductById({
+        productId,
+        payload: updateNestedObjectParse(attrNew),
+        model: clothing,
+      });
+
+      if (!newClothinglothing) new BadRequestError("Cannot update product clothing");
+    }
+    const updateProduct = super.updateProduct(productId, updateNestedObjectParse(objParams));
+
+    return updateProduct;
   }
 }
 //define class diffrent product type by electronic

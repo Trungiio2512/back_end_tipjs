@@ -44,7 +44,7 @@ class ProductController {
   async getAllDraftForShop(req, res, next) {
     // console.log(req.body);
     new SuccessResponse({
-      message: "Get list Draft success",
+      message: "Get list getAllDraftForShop success",
       metadata: await ProductServicev2.findAllDraftForShop({
         ...req.body,
         product_shop: req.user.userId,
@@ -55,7 +55,7 @@ class ProductController {
   async getAllPublishForShop(req, res, next) {
     // console.log(req.body);
     new SuccessResponse({
-      message: "Get list Draft success",
+      message: "Get list getAllPublishForShop success",
       metadata: await ProductServicev2.findAllPublishForShop({
         ...req.body,
         product_shop: req.user.userId,
@@ -67,9 +67,25 @@ class ProductController {
     // console.log(req.body);
     new SuccessResponse({
       message: "Get list getListSearchProduct success",
-      metadata: await ProductServicev2.getListSearchProduct({
+      metadata: await ProductServicev2.searchProduct({
         keySearch: req.params.keySearch,
       }),
+    }).send(res);
+  }
+
+  async findAllProduct(req, res, next) {
+    // console.log(req.body);
+    new SuccessResponse({
+      message: "Get list findAllProduct success",
+      metadata: await ProductServicev2.findAllProduct(req.query),
+    }).send(res);
+  }
+
+  async findProduct(req, res, next) {
+    // console.log(req.body);
+    new SuccessResponse({
+      message: "Get list findProduct success",
+      metadata: await ProductServicev2.findProduct({ product_id: req.params.product_id }),
     }).send(res);
   }
 }

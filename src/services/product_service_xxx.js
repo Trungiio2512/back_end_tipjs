@@ -2,6 +2,13 @@
 
 const { product, clothing, electronic, furniture } = require("../model/product.model");
 const { BadRequestError } = require("../core/error.response");
+const {
+  findAllDraftForShop,
+  publishProductShop,
+  findAllPublishForShop,
+  unPublishProductShop,
+  searchProductByUser,
+} = require("../model/repository/product.repo");
 
 //define factory patten to create product
 
@@ -24,17 +31,47 @@ class FactoryProduct {
     }
     return new productClass(payload).createProduct();
 
-    switch (type) {
-      case "Electronics":
-        return await new Electronic(payload).createProduct();
-      case "Clothing":
-        return await new Clothing(payload).createProduct();
-      case "Clothing":
-      case "Furniture":
-        return await new Furniture(payload).createProduct();
-      default:
-        throw new BadRequestError("Invalid product type: " + type);
-    }
+    // switch (type) {
+    //   case "Electronics":
+    //     return await new Electronic(payload).createProduct();
+    //   case "Clothing":
+    //     return await new Clothing(payload).createProduct();
+    //   case "Clothing":
+    //   case "Furniture":
+    //     return await new Furniture(payload).createProduct();
+    //   default:
+    //     throw new BadRequestError("Invalid product type: " + type);
+    // }
+  }
+
+  static async publishProductShop({ product_shop, product_id }) {
+    return await publishProductShop({
+      product_shop,
+      product_id,
+    });
+  }
+
+  static async unPublishProductShop({ product_shop, product_id }) {
+    return await unPublishProductShop({
+      product_shop,
+      product_id,
+    });
+  }
+
+  static async findAllDraftForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = { product_shop, isDraft: true };
+
+    return await findAllDraftForShop({ query, limit, skip });
+  }
+
+  static async findAllPublishForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = { product_shop, isPublished: true };
+
+    return await findAllPublishForShop({ query, limit, skip });
+  }
+
+  static async getListSearchProduct({ keySearch }) {
+    return await searchProductByUser({ keySearch });
   }
 }
 
@@ -63,7 +100,7 @@ class Product {
   }
 
   async createProduct(product_id) {
-    await product.create({ ...this, _id: product_id });
+    return await product.create({ ...this, _id: product_id });
   }
 }
 
@@ -74,7 +111,7 @@ class Clothing extends Product {
     const newClothing = await clothing.create({ ...this.product_attributes, product_shop: this.product_shop });
     if (!newClothing) throw new BadRequestError("Create new clothing error");
 
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newClothing._id);
     if (!newProduct) throw new BadRequestError("Create new product error");
 
     return newProduct;

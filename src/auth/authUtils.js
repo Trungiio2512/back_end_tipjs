@@ -9,7 +9,7 @@ const KeyTokenService = require("../services/keyToken_service");
 const createTokenPair = async (payload, publicKey, privateKey) => {
   try {
     // accessToken
-    const accessToken = await JWT.sign(payload, privateKey, {
+    const accessToken = await JWT.sign(payload, publicKey, {
       expiresIn: "2 days",
       // algorithm: "RS256",
     });
@@ -21,7 +21,7 @@ const createTokenPair = async (payload, publicKey, privateKey) => {
 
     //
 
-    JWT.verify(accessToken, privateKey, (err, decode) => {
+    JWT.verify(accessToken, publicKey, (err, decode) => {
       if (err) {
         console.error(`error verify::`, err);
       } else {
@@ -59,9 +59,11 @@ const authentication = asyncHandler(async (req, res, next) => {
     if (userId !== decodeUser.userId) throw new AuthFailureError("Invalid user");
 
     req.keyStore = keyStore;
+    req.user = decodeUser;
 
     return next();
   } catch (error) {
+    console.log(">>> " + error);
     throw error;
   }
 });
@@ -104,11 +106,12 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   if (!accessToken) throw new AuthFailureError("Invalid request");
 
   try {
-    const decodeUser = JWT.verify(accessToken, refreshToken.publicKey);
+    const decodeUser = JWT.verify(accessToken, keyStore.publicKey);
 
     if (userId !== decodeUser.userId) throw new AuthFailureError("Invalid user");
 
     req.keyStore = keyStore;
+    req.user = decodeUser;
 
     return next();
   } catch (error) {
